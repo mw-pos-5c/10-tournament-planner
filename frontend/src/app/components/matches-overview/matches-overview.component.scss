@@ -1,0 +1,15 @@
+
+.container {
+  border: 1px solid #ddd;
+  height: 100vh;
+}
+
+.matches {
+  padding: 15px;
+
+  app-match-view {
+    display: inline-block;
+    margin: 10px 10px 10px 10px;
+  }
+}
+

@@ -1,0 +1,23 @@
+.container {
+  border: solid black 2px;
+  display: inline-block;
+  width: 150px;
+  padding: 15px;
+}
+
+.player {
+  padding: 10px;
+}
+
+
+.winner {
+  background-color: #5ef15e;
+}
+
+.selectable:hover {
+  background-color: #aaf1aa;
+}
+
+* {
+  text-align: center;
+}

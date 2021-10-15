@@ -1,0 +1,27 @@
+<div class="container">
+  <table>
+    <thead>
+    <tr>
+      <th>
+        Firstname
+      </th>
+      <th>
+        Lastname
+      </th>
+      <th>
+        Gender
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let player of players" [class.dead]="player.isDead">
+
+      <td>{{player.firstname}}</td>
+      <td>{{player.lastname}}</td>
+      <td>{{player.gender[0]}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+

@@ -1,0 +1,13 @@
+<div class="container">
+
+  <div class="player" (click)="win(1)" [class.winner]="match?.winner === 1" [class.selectable]="match?.winner === 0">
+    <h3>{{player1?.firstname}}</h3>
+    <h4>{{player1?.lastname}}</h4>
+  </div>
+
+  <div>VS</div>
+  <div class="player" (click)="win(2)" [class.winner]="match?.winner === 2" [class.selectable]="match?.winner === 0">
+    <h3>{{player2?.firstname}}</h3>
+    <h4>{{player2?.lastname}}</h4>
+  </div>
+</div>
