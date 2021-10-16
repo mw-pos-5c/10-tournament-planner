@@ -1,4 +1,7 @@
-﻿using System;
+﻿#region usings
+
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.EntityFrameworkCore;
@@ -6,11 +9,17 @@ using Microsoft.EntityFrameworkCore;
 using TournamentPlanner.DB;
 using TournamentPlanner.DB.Models;
 
+#endregion
+
 namespace TournamentPlanner.Services
 {
     public class MatchesService
     {
-        private TournamentDbContext dbContext;
+        #region Constants and Fields
+
+        private readonly TournamentDbContext dbContext;
+
+        #endregion
 
         public MatchesService(TournamentDbContext dbContext)
         {
@@ -19,8 +28,7 @@ namespace TournamentPlanner.Services
 
         public void GenerateNextMatches()
         {
-            
-            if (dbContext.Matches.FirstOrDefault(match => match.Winner == null) != null)
+            if (dbContext.Matches.FirstOrDefault(match => match.Winner == 0) != null)
             {
                 throw new Exception("If there are any matches in the DB that do not have a winner, throw an exception.");
             }
@@ -36,18 +44,14 @@ namespace TournamentPlanner.Services
                     match.Player1.IsDead = true;
                 }
             }
-            
+
             dbContext.Matches.RemoveRange(dbContext.Matches);
 
             dbContext.SaveChanges();
-            
-            var players = dbContext.Players.Where(player => !player.IsDead).ToList();
+
+            List<Player> players = dbContext.Players.Where(player => !player.IsDead).ToList();
 
             int matches = players.Count / 2;
-
-            Console.WriteLine(matches);
-            
-            //int count = dbContext.Matches.Count();
 
             var rng = new Random();
 
@@ -57,7 +61,7 @@ namespace TournamentPlanner.Services
                 players.Remove(player1);
                 Player player2 = players[rng.Next(0, players.Count)];
                 players.Remove(player2);
-                
+
                 var match = new Match
                 {
                     Player1 = player1,
@@ -69,7 +73,6 @@ namespace TournamentPlanner.Services
             }
 
             dbContext.SaveChanges();
-
         }
     }
 }

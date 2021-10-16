@@ -14,11 +14,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let player of players" [class.dead]="player.isDead">
+    <tr *ngFor="let player of players" [class.dead]="player.isDead" [class.winner]="isWinner(player.id)">
 
       <td>{{player.firstname}}</td>
       <td>{{player.lastname}}</td>
-      <td>{{player.gender[0]}}</td>
+      <td (click)="swapGender(player.id, player.gender)">{{player.gender[0]}}</td>
     </tr>
     </tbody>
   </table>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region usings
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -11,17 +13,33 @@ using Microsoft.Extensions.Logging;
 using TournamentPlanner.DB;
 using TournamentPlanner.DB.Models;
 
+#endregion
+
 namespace TournamentPlanner.Services
 {
     public class TournamentPlannerService : IHostedService
     {
+        #region Constants and Fields
+
         private readonly ILogger<TournamentPlannerService> logger;
         private readonly IServiceScopeFactory scopeFactory;
+
+        #endregion
 
         public TournamentPlannerService(ILogger<TournamentPlannerService> logger, IServiceScopeFactory scopeFactory)
         {
             this.logger = logger;
             this.scopeFactory = scopeFactory;
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return Task.Run(LoadCsvData, cancellationToken);
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
 
         private void LoadCsvData()
@@ -32,13 +50,13 @@ namespace TournamentPlanner.Services
             var matchesService = scope.ServiceProvider.GetRequiredService<MatchesService>();
             dbContext.Database.EnsureDeleted(); // <-----------------------------------------------------------------------
             dbContext.Database.EnsureCreated();
-            
+
             using var reader = new StreamReader(Path.Combine("Resources", "players.csv")); // first_name,last_name,gender
             reader.ReadLine();
 
-            string line;
-            
-            while((line = reader.ReadLine()) != null)
+            string? line;
+
+            while ((line = reader.ReadLine()) != null)
             {
                 string[] row = line.Split(',');
                 if (row.Length != 3) continue;
@@ -61,19 +79,8 @@ namespace TournamentPlanner.Services
 
             dbContext.SaveChanges();
             logger.Log(LogLevel.Information, $"Loaded {dbContext.Players.Count()} Players");
-            
+
             matchesService.GenerateNextMatches();
-
-        }
-        
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            return Task.Run(LoadCsvData, cancellationToken);
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }

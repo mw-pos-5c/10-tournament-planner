@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿#region usings
 
 using Microsoft.AspNetCore.Mvc;
 
-using TournamentPlanner.DB;
-using TournamentPlanner.DB.Models;
 using TournamentPlanner.DTO;
+using TournamentPlanner.Services;
+
+#endregion
 
 namespace TournamentPlanner.Controllers
 {
@@ -13,30 +13,41 @@ namespace TournamentPlanner.Controllers
     [Route("players")]
     public class PlayerController : ControllerBase
     {
-        private TournamentDbContext dbContext;
+        #region Constants and Fields
+        
+        private readonly PlayerControllerService playerService;
 
-        public PlayerController(TournamentDbContext dbContext)
+        #endregion
+
+        public PlayerController(PlayerControllerService playerService)
         {
-            this.dbContext = dbContext;
+            this.playerService = playerService;
         }
 
         [HttpPost]
         [Route("add")]
         public IActionResult AddPlayer([FromBody] PlayerDto player)
         {
-            dbContext.Players.Add(new Player
-            {
-                Firstname = player.Firstname,
-                Lastname = player.Lastname,
-                Gender = Enum.Parse<Gender>(player.Gender)
-            });
+            playerService.AddPlayer(player);
             return Ok();
-        }
+        } 
 
         [HttpGet]
         public IActionResult GetPlayers()
         {
-            return Ok(dbContext.Players.Select(player => PlayerDto.FromModel(player)));
+            return Ok(playerService.GetPlayers());
+        }
+
+        [HttpPost]
+        [Route("gender")]
+        public IActionResult SetGender([FromBody] SetGenderDto dto)
+        {
+            if (playerService.SetGender(dto))
+            {
+                return Ok();
+            }
+
+            return BadRequest();
         }
     }
 }

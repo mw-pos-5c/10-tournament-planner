@@ -1,18 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿#region usings
+
+using Microsoft.EntityFrameworkCore;
 
 using TournamentPlanner.DB.Models;
+
+#endregion
 
 namespace TournamentPlanner.DB
 {
     public class TournamentDbContext : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public TournamentDbContext(DbContextOptions<TournamentDbContext> options)
+            : base(options)
         {
-            optionsBuilder.UseSqlite("Data Source=data.db;");
         }
-        
-        public DbSet<Player> Players { get; set; }
+
         public DbSet<Match> Matches { get; set; }
 
+        public DbSet<Player> Players { get; set; }
     }
 }

@@ -77,4 +77,8 @@ export class BackendConnectorService {
   public setWinner(matchId: number, index: number): Observable<boolean> {
     return this.http.post<boolean>(this.backendUrl + '/matches/winner', {matchId, index});
   }
+
+  public setPlayerGender(playerId: number, gender: string): Observable<boolean> {
+    return this.http.post<boolean>(this.backendUrl + '/players/gender', {playerId, gender});
+  }
 }

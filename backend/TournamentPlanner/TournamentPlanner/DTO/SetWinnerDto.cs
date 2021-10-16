@@ -1,8 +1,8 @@
 ﻿namespace TournamentPlanner.DTO
 {
-    public class SetWinnerDTO
+    public class SetWinnerDto
     {
-        public int MatchId { get; set; }
         public int Index { get; set; }
+        public int MatchId { get; set; }
     }
 }

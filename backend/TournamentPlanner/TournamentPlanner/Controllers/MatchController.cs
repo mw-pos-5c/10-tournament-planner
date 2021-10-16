@@ -1,14 +1,16 @@
-﻿using System;
+﻿#region usings
+
 using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using TournamentPlanner.DB;
 using TournamentPlanner.DB.Models;
 using TournamentPlanner.DTO;
 using TournamentPlanner.Services;
+
+#endregion
 
 namespace TournamentPlanner.Controllers
 {
@@ -16,8 +18,12 @@ namespace TournamentPlanner.Controllers
     [Route("matches")]
     public class MatchController : ControllerBase
     {
-        private TournamentDbContext dbContext;
-        private MatchesService matchesService;
+        #region Constants and Fields
+
+        private readonly TournamentDbContext dbContext;
+        private readonly MatchesService matchesService;
+
+        #endregion
 
         public MatchController(TournamentDbContext dbContext, MatchesService matchesService)
         {
@@ -25,16 +31,9 @@ namespace TournamentPlanner.Controllers
             this.matchesService = matchesService;
         }
 
-        [HttpGet]
-        public IActionResult GetMatches()
-        {
-            return Ok(dbContext.Matches.Select(match => MatchDTO.FromModel(match)));
-        }
-
-
         [HttpPost]
         [Route("create")]
-        public IActionResult CreateMatch([FromBody] MatchDTO body)
+        public IActionResult CreateMatch([FromBody] MatchDto body)
         {
             Player? player1 = dbContext.Players.FirstOrDefault(player => player.Id == body.Player1Id);
             Player? player2 = dbContext.Players.FirstOrDefault(player => player.Id == body.Player2Id);
@@ -55,10 +54,38 @@ namespace TournamentPlanner.Controllers
 
             return Ok();
         }
-        
+
+        [HttpGet]
+        [Route("active")]
+        public IActionResult GetActiveMatches()
+        {
+            IEnumerable<MatchDto> matches = dbContext.Matches.Where(m => m.Winner == 0).Select(match => MatchDto.FromModel(match)).AsEnumerable();
+            return Ok(matches);
+        }
+
+        [HttpGet]
+        public IActionResult GetMatches()
+        {
+            return Ok(dbContext.Matches.Select(match => MatchDto.FromModel(match)));
+        }
+
+        [HttpDelete]
+        public IActionResult Reset()
+        {
+            dbContext.Matches.RemoveRange(dbContext.Matches);
+            foreach (Player player in dbContext.Players)
+            {
+                player.IsDead = false;
+            }
+
+            dbContext.SaveChanges();
+            matchesService.GenerateNextMatches();
+            return Ok();
+        }
+
         [HttpPost]
         [Route("winner")]
-        public IActionResult SetWinner([FromBody] SetWinnerDTO dto)
+        public IActionResult SetWinner([FromBody] SetWinnerDto dto)
         {
             Match? match = dbContext.Matches.FirstOrDefault(m => m.Id == dto.MatchId);
             if (match == null)
@@ -74,29 +101,8 @@ namespace TournamentPlanner.Controllers
                 matchesService.GenerateNextMatches();
                 return Ok(false);
             }
-            
+
             return Ok(true);
-        }
-
-        [HttpGet]
-        [Route("active")]
-        public IActionResult GetActiveMatches()
-        {
-            IEnumerable<MatchDTO> matches = dbContext.Matches.Where(m => m.Winner == null).Select(match => MatchDTO.FromModel(match)).AsEnumerable();
-            return Ok(matches);
-        }
-
-        [HttpDelete]
-        public IActionResult Reset()
-        {
-            dbContext.Matches.RemoveRange(dbContext.Matches);
-            foreach (Player player in dbContext.Players)
-            {
-                player.IsDead = false;
-            }
-            dbContext.SaveChanges();
-            matchesService.GenerateNextMatches();
-            return Ok();
         }
     }
 }
