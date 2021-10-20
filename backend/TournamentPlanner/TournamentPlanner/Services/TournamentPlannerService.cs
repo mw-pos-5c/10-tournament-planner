@@ -47,7 +47,7 @@ namespace TournamentPlanner.Services
             using IServiceScope scope = scopeFactory.CreateScope();
 
             var dbContext = scope.ServiceProvider.GetRequiredService<TournamentDbContext>();
-            var matchesService = scope.ServiceProvider.GetRequiredService<MatchesService>();
+            var matchesService = scope.ServiceProvider.GetRequiredService<MatchService>();
             dbContext.Database.EnsureDeleted(); // <-----------------------------------------------------------------------
             dbContext.Database.EnsureCreated();
 

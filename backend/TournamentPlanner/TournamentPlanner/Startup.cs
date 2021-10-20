@@ -51,7 +51,7 @@ namespace TournamentPlanner
             
             services.AddControllers();
 
-            services.AddScoped<MatchesService>();
+            services.AddScoped<MatchService>();
             services.AddHostedService<TournamentPlannerService>();
 
             services.AddSwaggerGen(c =>

@@ -21,14 +21,14 @@ namespace TournamentPlanner.Controllers
         #region Constants and Fields
 
         private readonly TournamentDbContext dbContext;
-        private readonly MatchesService matchesService;
+        private readonly MatchService matchService;
 
         #endregion
 
-        public MatchController(TournamentDbContext dbContext, MatchesService matchesService)
+        public MatchController(TournamentDbContext dbContext, MatchService matchService)
         {
             this.dbContext = dbContext;
-            this.matchesService = matchesService;
+            this.matchService = matchService;
         }
 
         [HttpPost]
@@ -66,7 +66,7 @@ namespace TournamentPlanner.Controllers
         [HttpGet]
         public IActionResult GetMatches()
         {
-            return Ok(dbContext.Matches.Select(match => MatchDto.FromModel(match)));
+            return Ok(dbContext.Matches.Where(match => match.Turns == -1).Select(match => MatchDto.FromModel(match)));
         }
 
         [HttpDelete]
@@ -79,7 +79,7 @@ namespace TournamentPlanner.Controllers
             }
 
             dbContext.SaveChanges();
-            matchesService.GenerateNextMatches();
+            matchService.GenerateNextMatches();
             return Ok();
         }
 
@@ -98,7 +98,7 @@ namespace TournamentPlanner.Controllers
 
             if (dbContext.Matches.FirstOrDefault(m => m.Winner == 0) == null)
             {
-                matchesService.GenerateNextMatches();
+                matchService.GenerateNextMatches();
                 return Ok(false);
             }
 

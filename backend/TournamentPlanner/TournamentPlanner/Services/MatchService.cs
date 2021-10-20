@@ -13,7 +13,7 @@ using TournamentPlanner.DB.Models;
 
 namespace TournamentPlanner.Services
 {
-    public class MatchesService
+    public class MatchService
     {
         #region Constants and Fields
 
@@ -21,7 +21,7 @@ namespace TournamentPlanner.Services
 
         #endregion
 
-        public MatchesService(TournamentDbContext dbContext)
+        public MatchService(TournamentDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
@@ -33,8 +33,19 @@ namespace TournamentPlanner.Services
                 throw new Exception("If there are any matches in the DB that do not have a winner, throw an exception.");
             }
 
+            int playerCount = dbContext.Players.Count(player => !player.IsDead);
+
             foreach (Match match in dbContext.Matches.Include(m => m.Player1).Include(m => m.Player2))
             {
+                if (match.Turns == -1)
+                {
+                    match.Turns = playerCount;
+                }
+                else
+                {
+                    continue;
+                }
+
                 if (match.Winner == 1)
                 {
                     match.Player2.IsDead = true;
@@ -44,15 +55,14 @@ namespace TournamentPlanner.Services
                     match.Player1.IsDead = true;
                 }
             }
-
-            dbContext.Matches.RemoveRange(dbContext.Matches);
-
+            
             dbContext.SaveChanges();
-
+            
+                 
             List<Player> players = dbContext.Players.Where(player => !player.IsDead).ToList();
 
             int matches = players.Count / 2;
-
+            
             var rng = new Random();
 
             for (var i = 0; i < matches; i++)
@@ -66,7 +76,7 @@ namespace TournamentPlanner.Services
                 {
                     Player1 = player1,
                     Player2 = player2,
-                    Turns = 0,
+                    Turns = -1,
                 };
 
                 dbContext.Matches.Add(match);
